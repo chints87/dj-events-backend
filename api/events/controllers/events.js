@@ -71,20 +71,20 @@ module.exports = {
         return sanitizeEntity(entity, { model: strapi.models.events });
       },
 
-    // Delete user event
-    async delete(ctx){
-        const { id } = ctx.params;
+      // Delete a user event
+  async delete(ctx) {
+    const { id } = ctx.params;
 
-        const [events] = strapi.services.events.delete(
-            { 
-               id : id,
-              "user.id" : ctx.state.user.id,  
-            }
-        );
-        
-        // If one user tries to delete another users events
-        if (!events){
-            return ctx.unauthorized(`You can't update this entry`)
-        }
-    }  
+    const [events] = await strapi.services.events.find({
+      id: ctx.params.id,
+      "user.id": ctx.state.user.id,
+    });
+
+    if (!events) {
+      return ctx.unauthorized(`You can't update this entry`);
+    }
+
+    const entity = await strapi.services.events.delete({ id });
+    return sanitizeEntity(entity, { model: strapi.models.events });
+  },
 };
